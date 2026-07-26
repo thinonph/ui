@@ -6505,9 +6505,9 @@ end
                 return self.instances.textBox.Text
             end
             textbox.setText = function(self, newText) 
-                self.instances.textBox.Text = tostring(newText)
-                obj:fireEvent('onTextChange', newText)
-            end
+    self.instances.textBox.Text = tostring(newText)
+    self:fireEvent('onTextChange', newText)
+end
             
             
             -- hints temporarily disabled
@@ -7315,42 +7315,38 @@ end
             hotkey.getHotkey = function(self) return self.hotkey end 
             
             elemClasses.section.addHotkey = function(self, settings) 
-                if (not typeof(settings) == 'table') then
-                    return error('expected type table for settings', 2) 
-                end
-                
-                local s_title = settings.text or 'nil'
-                local s_bind = settings.bind or nil
-                
-                if (s_bind) then 
-                    if (typeof(s_bind) == 'EnumItem') then
-                        if (s_bind.EnumType ~= Enum.KeyCode) then
-                            return error('expected EnumItem of EnumType KeyCode for settings.bind', 2) 
-                        end
-                    else
-                        if (Enum.KeyCode[s_bind]) then
-                            s_bind = Enum.KeyCode[s_bind]
-                        else
-                            return error('expected valid Enum.KeyCode Name, or Enum.KeyCode EnumItem', 2)  
-                        end
-                    end
-                end
-                
-                local hotkey = hotkey:new()
-                hotkey.section = self 
-                hotkey.name = s_title
-                table.insert(self.controls, hotkey)
-                
-                hotkey.instances.label.Text = s_title
-                if (s_bind) then 
-                    hotkey:setBind(s_bind)
-                end
-                hotkey.instances.controlFrame.Parent = self.instances.controlMenu
-                return hotkey
+    if (not typeof(settings) == 'table') then
+        return error('expected type table for settings', 2) 
+    end
+    
+    local s_title = settings.text or 'nil'
+    local s_bind = settings.bind or nil
+    
+    if (s_bind) then 
+        if (typeof(s_bind) == 'EnumItem') then
+            if (s_bind.EnumType ~= Enum.KeyCode) then
+                return error('expected EnumItem of EnumType KeyCode for settings.bind', 2) 
+            end
+        else
+            if (Enum.KeyCode[s_bind]) then
+                s_bind = Enum.KeyCode[s_bind]
+            else
+                return error('expected valid Enum.KeyCode Name, or Enum.KeyCode EnumItem', 2)  
             end
         end
-        elemClasses.hotkey = hotkey
-    end    
+    end
+    
+    local hotkey = hotkey:new()
+    hotkey.section = self 
+    hotkey.name = s_title
+    table.insert(self.controls, hotkey)
+    
+    hotkey.instances.label.Text = s_title
+    if (s_bind) then 
+        hotkey:setHotkey(s_bind)
+    end
+    hotkey.instances.controlFrame.Parent = self.instances.controlMenu
+    return hotkey
 end
 
 do
