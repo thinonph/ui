@@ -5424,16 +5424,15 @@ do
         dropdown.openState = false
         dropdown.value = nil
 
-       dropdown.open = function(self) 
-    self.openState = true 
-    self:fireEvent('onOpen')
-    local button, icon = self.instances.button, self.instances.icon
-    button.Visible = true -- ADD THIS
-    tween(button, {BackgroundColor3 = self.focused and theme.Button4 or theme.Button2}, 0.2, 1)
-    tween(icon, {Rotation = 180, ImageColor3 = theme.Primary}, 0.3, 1)
-    local menuSize = math.min(#self.options * 18, 18 * 6)
-    tween(self.instances.menu, {Size = UDim2.new(1, 0, 0, menuSize)}, 0.2, 1)
-end
+        dropdown.open = function(self) 
+            self.openState = true 
+            self:fireEvent('onOpen')
+            local button, icon = self.instances.button, self.instances.icon
+            tween(button, {BackgroundColor3 = self.focused and theme.Button4 or theme.Button2}, 0.2, 1)
+            tween(icon, {Rotation = 180, ImageColor3 = theme.Primary}, 0.3, 1)
+            local menuSize = math.min(#self.options * 18, 18 * 6)
+            tween(self.instances.menu, {Size = UDim2.new(1, 0, 0, menuSize)}, 0.2, 1)
+        end
         dropdown.close = function(self) 
     self.openState = false
     self:fireEvent('onClose')
