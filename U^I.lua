@@ -5233,596 +5233,326 @@ do
     end
     
     -- Unfinished
-    -- DROPDOWN OPTION
-    --[[
-    do 
-        local dropdownOption = {} do 
-            dropdownOption.__index = dropdownOption 
-            setmetatable(dropdownOption, elemClasses.baseElement)
-            
-            dropdownOption.class = 'dropdownOption'
-            
-            do
-                local instances = {} do 
-                    local controlFrame = Instance.new('Frame')
-                    controlFrame.BackgroundTransparency = 0.8
-                    controlFrame.BackgroundColor3 = Color3.new(1, 0, 0)
-                    controlFrame.Name = '#control'
-                    controlFrame.Size = UDim2.new(1, 0, 0, 24)
-                    controlFrame.Visible = true
-                    controlFrame.ZIndex = 34
-                    
-                    instances.controlFrame = controlFrame
-                    
-                    local clickSensor = Instance.new('TextButton') do 
-                        clickSensor.BackgroundTransparency = 1
-                        clickSensor.Name = '#click-sensor'
-                        clickSensor.Size = UDim2.fromScale(1, 1)
-                        clickSensor.Text = ''
-                        clickSensor.TextTransparency = 1
-                        clickSensor.ZIndex = 34
-                        
-                        clickSensor.Parent = controlFrame
-                        
-                        local button = Instance.new('Frame') do 
-                            button.Active = true
-                            button.AnchorPoint = Vector2.new(1, 0)
-                            button.BackgroundColor3 = theme.Button1
-                            button.Name = '#button'
-                            button.Position = UDim2.new(1, -3, 0, 4)
-                            button.Size = UDim2.new(1, -6, 0, 16)
-                            button.Visible = true
-                            button.ZIndex = 35
-                            
-                            button.Parent = clickSensor
-                            
-                            local round = Instance.new('UICorner') do 
-                                round.CornerRadius = UDim.new(0, rounding and 2 or 0)
-                                round.Name = '#round'
-                                
-                                round.Parent = button
-                            end
-                            
-                            local stroke = Instance.new('UIStroke') do 
-                                stroke.ApplyStrokeMode = 'Border'
-                                stroke.Color = theme.Stroke
-                                stroke.LineJoinMode = 'Round'
-                                stroke.Name = '#stroke'
-                                stroke.Thickness = 1 
-                                
-                                stroke.Parent = button
-                            end
-                            
-                            local label = Instance.new('TextLabel') do 
-                                label.BackgroundTransparency = 1
-                                label.Font = 'SourceSans'
-                                label.Name = '#label'
-                                label.RichText = true
-                                label.Size = UDim2.fromScale(1, 1)
-                                label.Text = 'button'
-                                label.TextColor3 = theme.TextPrimary
-                                label.TextSize = 14
-                                label.TextStrokeColor3 = theme.TextStroke
-                                label.TextStrokeTransparency = 0.8
-                                label.TextTransparency = 0
-                                label.TextWrapped = false
-                                label.TextXAlignment = 'Center'
-                                label.TextYAlignment = 'Center'
-                                label.Visible = true
-                                label.ZIndex = 35
-                                
-                                label.Parent = button
-                            end
-                            
-                            local icon = Instance.new('ImageLabel') do 
-                                icon.AnchorPoint = Vector2.new(1, 0)
-                                icon.BackgroundTransparency = 1
-                                icon.Image = 'rbxassetid://9801473013'
-                                icon.ImageColor3 = theme.Secondary
-                                icon.Name = '#icon'
-                                icon.Position = UDim2.fromScale(1, 0)
-                                icon.Rotation = 0
-                                icon.Size = UDim2.fromOffset(16, 16)
-                                icon.Visible = true
-                                icon.ZIndex = 35
-                                
-                                icon.Parent = button
-                                
-                                local gradient = Instance.new('UIGradient') do 
-                                    gradient.Color = ColorSequence.new(
-                                        theme.ControlGradient1,
-                                        theme.ControlGradient2
-                                    )
-                                    gradient.Rotation = 90
-                                    gradient.Enabled = true
-                                    gradient.Name = '#gradient'
-                                    
-                                    gradient.Parent = icon
-                                end
-                            end
-                        end
-                        
-                        
-                        local menu = Instance.new('ScrollingFrame') do 
-                            menu.BackgroundColor3 = theme.Window3
-                            menu.BorderSizePixel = 0
-                            menu.BottomImage = 'rbxassetid://9416839567'
-                            menu.ClipsDescendants = true
-                            menu.CanvasSize = UDim2.fromOffset(0, 0)
-                            menu.MidImage = 'rbxassetid://9416839567'
-                            menu.Name = '#menu'
-                            menu.Position = UDim2.fromOffset(3, 20)
-                            menu.ScrollBarImageTransparency = 0.9
-                            menu.ScrollBarThickness = 1
-                            menu.ScrollingDirection = 'Y'
-                            menu.ScrollingEnabled = true
-                            menu.Size = UDim2.new(1, -6, 0, 0)
-                            menu.TopImage = 'rbxassetid://9416839567'
-                            menu.ZIndex = 34
-                            
-                            menu.Parent = controlFrame
-                            
-                            local layout = Instance.new('UIListLayout') do 
-                                layout.Padding = UDim.new(0, 4)
-                                layout.Name = '#layout'
-                                layout.FillDirection = 'Vertical'
-                                layout.HorizontalAlignment = 'Center'
-                                layout.VerticalAlignment = 'Top'
-                                layout.SortOrder = 'LayoutOrder'
-                                
-                                layout.Parent = menu
-                            end
-                            
-                            local padding = Instance.new('UIPadding') do 
-                                padding.PaddingTop = UDim.new(0, 4)
-                                padding.Name = '#padding'
-                                padding.Parent = menu
-                            end
-                            
-                            local stroke = Instance.new('UIStroke') do 
-                                stroke.ApplyStrokeMode = 'Border'
-                                stroke.Color = theme.Stroke
-                                stroke.LineJoinMode = 'Round'
-                                stroke.Name = '#stroke'
-                                stroke.Thickness = 1 
-                                
-                                stroke.Parent = menu
-                            end
-                        end
-                    end
-                end
-                dropdownOption.instances = instances 
-            end
-            
-            dropdownOption.focused = false
-            dropdownOption.selected = false
-            
-            dropdownOption.select = function(self) 
-                self.openState = not self.openState
-                if (self.openState) then
-                    self:open()
-                else
-                    self:close()
-                end
-                
-                return self
-            end
-            dropdownOption.__hotkeyFunc = dropdownOption.select
-            
-            dropdownOption.signals = {
-                clickSensor = {
-                    MouseEnter = function(inst, self) 
-                        self.focused = true
-                        self:showTooltip()
-                        
-                        
-                        local frame = self.instances.button
-                        if (self.openState) then
-                            tween(frame, {BackgroundColor3 = theme.Button4}, 0.2, 1)
-                        else
-                            tween(frame, {BackgroundColor3 = theme.Button2}, 0.2, 1)
-                        end
-                        tween(frame['#stroke'], {Color = theme.StrokeHover}, 0.2, 1)
-                    end,
-                    MouseLeave = function(inst, self) 
-                        self.focused = false
-                        self:hideTooltip()
-                        
-                        local frame = self.instances.button
-                        if (self.openState) then
-                            tween(frame, {BackgroundColor3 = theme.Button3}, 0.2, 1)
-                        else
-                            tween(frame, {BackgroundColor3 = theme.Button1}, 0.2, 1)
-                        end
-                        tween(frame['#stroke'], {Color = theme.Stroke}, 0.2, 1)
-                    end,
-                    MouseButton1Click = function(inst, self) 
-                        self:click()
-                    end
-                }
-            }
-            
-            dropdownOption.new = function(self) 
-                
-                local new = setmetatable({}, self)
-                new.binds = {}
-                new.options = {}
-                
-                local instances = {}
-                instances.controlFrame = self.instances.controlFrame:Clone()
-                instances.clickSensor = instances.controlFrame['#click-sensor']
-                instances.button = instances.clickSensor['#button']
-                instances.label = instances.button['#label']
-                instances.icon = instances.button['#icon']
-                instances.menu = instances.controlFrame['#menu']
-                
-                for i, signals in pairs(self.signals) do 
-                    local inst = instances[i]
-                    for signal, func in pairs(signals) do
-                        local h = inst[signal]:Connect(function() 
-                            func(inst, new)
-                        end)
-                    end
-                end
-                
-                new.instances = instances
-                return new
-            end
-            
-            
-            elemClasses.dropdown.addDropdown = function(self, settings) 
-                if (not typeof(settings) == 'table') then
-                    return error('expected type table for settings', 2) 
-                end
-                
-                local s_title = settings.text or 'nil'
-                local s_options = settings.options or {}
-                
-                local new = dropdown:new()
-                new.section = self 
-                new.name = s_title
-                table.insert(self.controls, new)
-                
-                new.instances.label.Text = s_title
-                new.instances.controlFrame.Parent = self.instances.controlMenu
-                return new
-            end
-        end
-        -- add class
-        elemClasses.dropdownOption = dropdownOption
-    end]]
-
-    -- Unfinished
     -- DROPDOWN
-    --[[
-    do 
-        local dropdown = {} do 
-            dropdown.__index = dropdown 
-            setmetatable(dropdown, elemClasses.baseElement)
-            
-            dropdown.class = 'dropdown'
-            
-            do
-                local instances = {} do 
-                    local controlFrame = Instance.new('Frame')
-                    controlFrame.BackgroundTransparency = 1
-                    controlFrame.BackgroundColor3 = Color3.new(0, 1, 1)
-                    controlFrame.Name = '#control'
-                    controlFrame.Size = UDim2.new(1, 0, 0, 20)
-                    controlFrame.Visible = true
-                    controlFrame.ZIndex = 34
-                    
-                    instances.controlFrame = controlFrame
-                    
-                    local clickSensor = Instance.new('TextButton') do 
-                        clickSensor.BackgroundTransparency = 1
-                        clickSensor.Name = '#click-sensor'
-                        clickSensor.Size = UDim2.new(1, 0, 0, 20)
-                        clickSensor.Text = ''
-                        clickSensor.TextTransparency = 1
-                        clickSensor.ZIndex = 34
-                        
-                        clickSensor.Parent = controlFrame
-                        
-                        local button = Instance.new('Frame') do 
-                            button.Active = true
-                            button.AnchorPoint = Vector2.new(1, 0)
-                            button.BackgroundColor3 = theme.Button1
-                            button.Name = '#button'
-                            button.Position = UDim2.new(1, -3, 0, 2)
-                            button.Size = UDim2.new(1, -6, 0, 16)
-                            button.Visible = true
-                            button.ZIndex = 35
-                            
-                            button.Parent = clickSensor
-                            
-                            local round = Instance.new('UICorner') do 
-                                round.CornerRadius = UDim.new(0, rounding and 2 or 0)
-                                round.Name = '#round'
-                                
-                                round.Parent = button
-                            end
-                            
-                            local stroke = Instance.new('UIStroke') do 
-                                stroke.ApplyStrokeMode = 'Border'
-                                stroke.Color = theme.Stroke
-                                stroke.LineJoinMode = 'Round'
-                                stroke.Name = '#stroke'
-                                stroke.Thickness = 1 
-                                
-                                stroke.Parent = button
-                            end
-                            
-                            local label = Instance.new('TextLabel') do 
-                                label.BackgroundTransparency = 1
-                                label.Font = 'SourceSans'
-                                label.Name = '#label'
-                                label.RichText = true
-                                label.Size = UDim2.fromScale(1, 1)
-                                label.Text = 'button'
-                                label.TextColor3 = theme.TextPrimary
-                                label.TextSize = 14
-                                label.TextStrokeColor3 = theme.TextStroke
-                                label.TextStrokeTransparency = 0.8
-                                label.TextTransparency = 0
-                                label.TextWrapped = false
-                                label.TextXAlignment = 'Center'
-                                label.TextYAlignment = 'Center'
-                                label.Visible = true
-                                label.ZIndex = 35
-                                
-                                label.Parent = button
-                            end
-                            
-                            local icon = Instance.new('ImageLabel') do 
-                                icon.AnchorPoint = Vector2.new(1, 0)
-                                icon.BackgroundTransparency = 1
-                                icon.Image = 'rbxassetid://9801473013'
-                                icon.ImageColor3 = theme.Secondary
-                                icon.Name = '#icon'
-                                icon.Position = UDim2.fromScale(1, 0)
-                                icon.Rotation = 0
-                                icon.Size = UDim2.fromOffset(16, 16)
-                                icon.Visible = true
-                                icon.ZIndex = 35
-                                
-                                icon.Parent = button
-                                
-                                local gradient = Instance.new('UIGradient') do 
-                                    gradient.Color = ColorSequence.new(
-                                        theme.ControlGradient1,
-                                        theme.ControlGradient2
-                                    )
-                                    gradient.Rotation = 90
-                                    gradient.Enabled = true
-                                    gradient.Name = '#gradient'
-                                    
-                                    gradient.Parent = icon
-                                end
-                            end
+do 
+    local dropdown = {} do 
+        dropdown.__index = dropdown 
+        setmetatable(dropdown, elemClasses.baseElement)
+        dropdown.class = 'dropdown'
+
+        local instances = {} do 
+            local controlFrame = Instance.new('Frame')
+            controlFrame.BackgroundTransparency = 1
+            controlFrame.Name = '#control'
+            controlFrame.AutomaticSize = 'Y'
+            controlFrame.Size = UDim2.new(1, 0, 0, 20)
+            controlFrame.Visible = true
+            controlFrame.ZIndex = 34
+            instances.controlFrame = controlFrame
+
+            local clickSensor = Instance.new('TextButton') do 
+                clickSensor.BackgroundTransparency = 1
+                clickSensor.Name = '#click-sensor'
+                clickSensor.Size = UDim2.new(1, 0, 0, 20)
+                clickSensor.Text = ''
+                clickSensor.TextTransparency = 1
+                clickSensor.ZIndex = 34
+                clickSensor.Parent = controlFrame
+
+                local label = Instance.new('TextLabel') do 
+                    label.BackgroundTransparency = 1
+                    label.Font = 'SourceSans'
+                    label.Name = '#label'
+                    label.RichText = true
+                    label.Size = UDim2.fromScale(1, 1)
+                    label.Text = 'dropdown'
+                    label.TextColor3 = theme.TextPrimary
+                    label.TextSize = 14
+                    label.TextStrokeColor3 = theme.TextStroke
+                    label.TextStrokeTransparency = 0.8
+                    label.TextXAlignment = 'Left'
+                    label.TextYAlignment = 'Center'
+                    label.Visible = true
+                    label.ZIndex = 35
+                    label.Parent = clickSensor
+
+                    local padding = Instance.new('UIPadding') do 
+                        padding.Name = '#padding'
+                        padding.PaddingLeft = UDim.new(0, 6)
+                        padding.Parent = label
+                    end
+                end
+
+                local button = Instance.new('Frame') do 
+                    button.Active = true
+                    button.AnchorPoint = Vector2.new(1, 0)
+                    button.BackgroundColor3 = theme.Button1
+                    button.Name = '#button'
+                    button.Position = UDim2.new(1, -3, 0, 2)
+                    button.Size = UDim2.new(0.5, -3, 0, 16)
+                    button.Visible = true
+                    button.ZIndex = 35
+                    button.Parent = clickSensor
+
+                    local round = Instance.new('UICorner') do 
+                        round.CornerRadius = UDim.new(0, rounding and 2 or 0)
+                        round.Name = '#round'
+                        round.Parent = button
+                    end
+
+                    local stroke = Instance.new('UIStroke') do 
+                        stroke.ApplyStrokeMode = 'Border'
+                        stroke.Color = theme.Stroke
+                        stroke.LineJoinMode = 'Round'
+                        stroke.Name = '#stroke'
+                        stroke.Thickness = 1 
+                        stroke.Parent = button
+                    end
+
+                    local selected = Instance.new('TextLabel') do 
+                        selected.BackgroundTransparency = 1
+                        selected.Font = 'SourceSans'
+                        selected.Name = '#selected'
+                        selected.Size = UDim2.new(1, -20, 1, 0)
+                        selected.Text = 'select...'
+                        selected.TextColor3 = theme.TextPrimary
+                        selected.TextSize = 14
+                        selected.TextStrokeColor3 = theme.TextStroke
+                        selected.TextStrokeTransparency = 0.8
+                        selected.TextTruncate = 'AtEnd'
+                        selected.TextXAlignment = 'Left'
+                        selected.TextYAlignment = 'Center'
+                        selected.Visible = true
+                        selected.ZIndex = 36
+                        selected.Parent = button
+
+                        local padding = Instance.new('UIPadding') do 
+                            padding.PaddingLeft = UDim.new(0, 4)
+                            padding.Parent = selected
                         end
-                        
-                        
-                        local menu = Instance.new('ScrollingFrame') do 
-                            menu.BackgroundColor3 = theme.Window3
-                            menu.BorderSizePixel = 0
-                            menu.BottomImage = 'rbxassetid://9416839567'
-                            menu.ClipsDescendants = true
-                            menu.CanvasSize = UDim2.fromOffset(0, 0)
-                            menu.MidImage = 'rbxassetid://9416839567'
-                            menu.Name = '#menu'
-                            menu.Position = UDim2.fromOffset(3, 18)
-                            menu.ScrollBarImageTransparency = 0.9
-                            menu.ScrollBarThickness = 1
-                            menu.ScrollingDirection = 'Y'
-                            menu.ScrollingEnabled = true
-                            menu.Size = UDim2.new(1, -6, 0, 0)
-                            menu.TopImage = 'rbxassetid://9416839567'
-                            menu.ZIndex = 34
-                            
-                            menu.Parent = controlFrame
-                            
-                            local layout = Instance.new('UIListLayout') do 
-                                layout.Padding = UDim.new(0, 4)
-                                layout.Name = '#layout'
-                                layout.FillDirection = 'Vertical'
-                                layout.HorizontalAlignment = 'Center'
-                                layout.VerticalAlignment = 'Top'
-                                layout.SortOrder = 'LayoutOrder'
-                                
-                                layout.Parent = menu
-                            end
-                            
-                            local padding = Instance.new('UIPadding') do 
-                                padding.PaddingTop = UDim.new(0, 4)
-                                padding.Name = '#padding'
-                                padding.Parent = menu
-                            end
-                            
-                            local stroke = Instance.new('UIStroke') do 
-                                stroke.ApplyStrokeMode = 'Border'
-                                stroke.Color = theme.Stroke
-                                stroke.LineJoinMode = 'Round'
-                                stroke.Name = '#stroke'
-                                stroke.Thickness = 1 
-                                
-                                stroke.Parent = menu
-                            end
+                    end
+
+                    local icon = Instance.new('ImageLabel') do 
+                        icon.AnchorPoint = Vector2.new(1, 0.5)
+                        icon.BackgroundTransparency = 1
+                        icon.Image = 'rbxassetid://9801473013'
+                        icon.ImageColor3 = theme.Secondary
+                        icon.Name = '#icon'
+                        icon.Position = UDim2.new(1, -4, 0.5, 0)
+                        icon.Size = UDim2.fromOffset(12, 12)
+                        icon.Visible = true
+                        icon.ZIndex = 36
+                        icon.Parent = button
+
+                        local gradient = Instance.new('UIGradient') do 
+                            gradient.Color = ColorSequence.new(theme.ControlGradient1, theme.ControlGradient2)
+                            gradient.Rotation = 90
+                            gradient.Enabled = true
+                            gradient.Name = '#gradient'
+                            gradient.Parent = icon
                         end
                     end
                 end
-                dropdown.instances = instances 
             end
-            
-            dropdown.focused = false
-            dropdown.openState = false
-            
-            
-            dropdown.open = function(self) 
-                self.openState = true 
-                self:fireEvent('onOpen')
-                
-                
-                local frame = self.instances.button
-                if (self.focused) then
-                    tween(frame, {BackgroundColor3 = theme.Button4}, 0.2, 1)
-                else
-                    tween(frame, {BackgroundColor3 = theme.Button2}, 0.2, 1)
+
+            local menu = Instance.new('Frame') do 
+                menu.BackgroundColor3 = theme.Window3
+                menu.BorderColor3 = theme.Inset3
+                menu.BorderMode = 'Inset'
+                menu.BorderSizePixel = 1
+                menu.ClipsDescendants = true
+                menu.Name = '#menu'
+                menu.Position = UDim2.new(0, 0, 0, 20)
+                menu.Size = UDim2.new(1, 0, 0, 0)
+                menu.Visible = true
+                menu.ZIndex = 40
+                menu.Parent = controlFrame
+
+                local stroke = Instance.new('UIStroke') do 
+                    stroke.ApplyStrokeMode = 'Border'
+                    stroke.Color = theme.Stroke
+                    stroke.LineJoinMode = 'Round'
+                    stroke.Name = '#stroke'
+                    stroke.Thickness = 1 
+                    stroke.Parent = menu
                 end
-                tween(self.instances.icon, {
-                    Rotation = 180,
-                    ImageColor3 = theme.Primary
-                }, 0.3, 1)
-                
-                
-                tween(self.instances.menu, {
-                    Size = UDim2.new(1, -6, 0, 68)
-                }, 0.2, 1)
-                tween(self.instances.controlFrame, {
-                    Size = UDim2.new(1, 0, 0, 68+20)
-                }, 0.2, 1)
-            end
-            dropdown.close = function(self) 
-                self.openState = false
-                self:fireEvent('onClose')
-                
-                local frame = self.instances.button
-                if (self.focused) then
-                    tween(frame, {BackgroundColor3 = theme.Button2}, 0.2, 1)
-                else
-                    tween(frame, {BackgroundColor3 = theme.Button1}, 0.2, 1)
-                end
-                tween(self.instances.icon, {
-                    Rotation = 0,
-                    ImageColor3 = theme.Secondary
-                }, 0.3, 1)
-                tween(self.instances.menu, {
-                    Size = UDim2.new(1, -6, 0, 0)
-                }, 0.2, 1)
-                tween(self.instances.controlFrame, {
-                    Size = UDim2.new(1, 0, 0, 20)
-                }, 0.2, 1)
-            end
-            
-            dropdown.isOpen = function(self) 
-                return self.openState 
-            end
-            
-            dropdown.setOptions = function(self, newOptions) 
-                for i, opt in ipairs(self.options) do 
-                    self:removeOption(opt)
-                end
-                for i, opt in ipairs(newOptions) do 
-                    self:addOption(opt)
-                end
-            end
-            dropdown.refresh = dropdown.setOptions
-            
-            dropdown.addOption = function(self) 
-            
-            end
-            
-            dropdown.removeOption = function(self) 
-            
-            end
-            
-            
-            
-            dropdown.click = function(self) 
-                self.openState = not self.openState
-                if (self.openState) then
-                    self:open()
-                else
-                    self:close()
-                end
-                
-                return self
-            end
-            dropdown.__hotkeyFunc = dropdown.click
-            
-            dropdown.signals = {
-                clickSensor = {
-                    MouseEnter = function(inst, self) 
-                        self.focused = true
-                        self:showTooltip()
-                        
-                        
-                        local frame = self.instances.button
-                        if (self.openState) then
-                            tween(frame, {BackgroundColor3 = theme.Button4}, 0.2, 1)
-                        else
-                            tween(frame, {BackgroundColor3 = theme.Button2}, 0.2, 1)
-                        end
-                        tween(frame['#stroke'], {Color = theme.StrokeHover}, 0.2, 1)
-                    end,
-                    MouseLeave = function(inst, self) 
-                        self.focused = false
-                        self:hideTooltip()
-                        
-                        local frame = self.instances.button
-                        if (self.openState) then
-                            tween(frame, {BackgroundColor3 = theme.Button3}, 0.2, 1)
-                        else
-                            tween(frame, {BackgroundColor3 = theme.Button1}, 0.2, 1)
-                        end
-                        tween(frame['#stroke'], {Color = theme.Stroke}, 0.2, 1)
-                    end,
-                    MouseButton1Click = function(inst, self) 
-                        self:click()
-                    end
-                }
-            }
-            
-            dropdown.new = function(self) 
-                
-                local new = setmetatable({}, self)
-                new.binds = {}
-                new.options = {}
-                
-                local instances = {}
-                instances.controlFrame = self.instances.controlFrame:Clone()
-                instances.clickSensor = instances.controlFrame['#click-sensor']
-                instances.button = instances.clickSensor['#button']
-                instances.label = instances.button['#label']
-                instances.icon = instances.button['#icon']
-                instances.menu = instances.controlFrame['#menu']
-                
-                for i, signals in pairs(self.signals) do 
-                    local inst = instances[i]
-                    for signal, func in pairs(signals) do
-                        local h = inst[signal]:Connect(function() 
-                            func(inst, new)
-                        end)
+
+                local list = Instance.new('Frame') do 
+                    list.BackgroundTransparency = 1
+                    list.Name = '#list'
+                    list.Size = UDim2.new(1, 0, 1, 0)
+                    list.Visible = true
+                    list.ZIndex = 41
+                    list.Parent = menu
+
+                    local layout = Instance.new('UIListLayout') do 
+                        layout.FillDirection = 'Vertical'
+                        layout.HorizontalAlignment = 'Center'
+                        layout.Name = '#layout'
+                        layout.SortOrder = 'LayoutOrder'
+                        layout.VerticalAlignment = 'Top'
+                        layout.Parent = list
                     end
                 end
-                
-                new.instances = instances
-                return new
-            end
-            
-            
-            elemClasses.section.addDropdown = function(self, settings) 
-                if (not typeof(settings) == 'table') then
-                    return error('expected type table for settings', 2) 
-                end
-                
-                local s_title = settings.text or 'nil'
-                local s_options = settings.options or {}
-                
-                local new = dropdown:new()
-                new.section = self 
-                new.name = s_title
-                table.insert(self.controls, new)
-                
-                new.instances.label.Text = s_title
-                new.instances.controlFrame.Parent = self.instances.controlMenu
-                return new
             end
         end
-        -- add class
-        elemClasses.dropdown = dropdown
-    end    
-    ]]
+        dropdown.instances = instances 
+
+        local optionTemplate = Instance.new('TextButton') do 
+            optionTemplate.AutoButtonColor = false
+            optionTemplate.BackgroundColor3 = theme.Window3
+            optionTemplate.Font = 'SourceSans'
+            optionTemplate.Name = '#option'
+            optionTemplate.Size = UDim2.new(1, 0, 0, 18)
+            optionTemplate.Text = 'option'
+            optionTemplate.TextColor3 = theme.TextPrimary
+            optionTemplate.TextSize = 14
+            optionTemplate.TextStrokeColor3 = theme.TextStroke
+            optionTemplate.TextStrokeTransparency = 0.8
+            optionTemplate.TextXAlignment = 'Left'
+            optionTemplate.TextYAlignment = 'Center'
+            optionTemplate.Visible = true
+            optionTemplate.ZIndex = 41
+
+            local padding = Instance.new('UIPadding') do 
+                padding.PaddingLeft = UDim.new(0, 6)
+                padding.Parent = optionTemplate
+            end
+        end
+
+        dropdown.focused = false
+        dropdown.openState = false
+        dropdown.value = nil
+
+        dropdown.open = function(self) 
+            self.openState = true 
+            self:fireEvent('onOpen')
+            local button, icon = self.instances.button, self.instances.icon
+            tween(button, {BackgroundColor3 = self.focused and theme.Button4 or theme.Button2}, 0.2, 1)
+            tween(icon, {Rotation = 180, ImageColor3 = theme.Primary}, 0.3, 1)
+            local menuSize = math.min(#self.options * 18, 18 * 6)
+            tween(self.instances.menu, {Size = UDim2.new(1, 0, 0, menuSize)}, 0.2, 1)
+        end
+        dropdown.close = function(self) 
+            self.openState = false
+            self:fireEvent('onClose')
+            local button, icon = self.instances.button, self.instances.icon
+            tween(button, {BackgroundColor3 = self.focused and theme.Button2 or theme.Button1}, 0.2, 1)
+            tween(icon, {Rotation = 0, ImageColor3 = theme.Secondary}, 0.3, 1)
+            tween(self.instances.menu, {Size = UDim2.new(1, 0, 0, 0)}, 0.2, 1)
+        end
+        dropdown.click = function(self) 
+            if (self.openState) then self:close() else self:open() end
+            return self
+        end
+        dropdown.__hotkeyFunc = dropdown.click
+
+        dropdown.select = function(self, optionText) 
+            self.value = optionText
+            self.instances.selected.Text = optionText
+            self:fireEvent('onSelect', optionText)
+            self:close()
+        end
+
+        dropdown.setOptions = function(self, newOptions) 
+            local list = self.instances.list
+            for _, child in ipairs(list:GetChildren()) do 
+                if (child:IsA('TextButton')) then child:Destroy() end
+            end
+            self.options = newOptions
+            for _, optText in ipairs(newOptions) do 
+                local opt = optionTemplate:Clone()
+                opt.Text = optText
+                opt.Parent = list
+                opt.MouseEnter:Connect(function() tween(opt, {BackgroundColor3 = theme.Button2}, 0.2, 1) end)
+                opt.MouseLeave:Connect(function() tween(opt, {BackgroundColor3 = theme.Window3}, 0.2, 1) end)
+                opt.MouseButton1Click:Connect(function() self:select(optText) end)
+            end
+            if (self.openState) then
+                tween(self.instances.menu, {Size = UDim2.new(1, 0, 0, math.min(#newOptions * 18, 18*6))}, 0.2, 1)
+            end
+            return self
+        end
+
+        dropdown.getValue = function(self) return self.value end
+
+        dropdown.signals = {
+            clickSensor = {
+                MouseEnter = function(inst, self) 
+                    self.focused = true
+                    self:showTooltip()
+                    local button = self.instances.button
+                    tween(button, {BackgroundColor3 = self.openState and theme.Button4 or theme.Button2}, 0.2, 1)
+                    tween(button['#stroke'], {Color = theme.StrokeHover}, 0.2, 1)
+                end,
+                MouseLeave = function(inst, self) 
+                    self.focused = false
+                    self:hideTooltip()
+                    local button = self.instances.button
+                    tween(button, {BackgroundColor3 = self.openState and theme.Button3 or theme.Button1}, 0.2, 1)
+                    tween(button['#stroke'], {Color = theme.Stroke}, 0.2, 1)
+                end,
+                MouseButton1Click = function(inst, self) self:click() end
+            }
+        }
+
+        dropdown.new = function(self) 
+            local new = setmetatable({}, self)
+            new.binds = {}
+            new.options = {}
+
+            local instances = {}
+            instances.controlFrame = self.instances.controlFrame:Clone()
+            instances.clickSensor = instances.controlFrame['#click-sensor']
+            instances.label = instances.clickSensor['#label']
+            instances.button = instances.clickSensor['#button']
+            instances.selected = instances.button['#selected']
+            instances.icon = instances.button['#icon']
+            instances.menu = instances.controlFrame['#menu']
+            instances.list = instances.menu['#list']
+
+            for i, signals in pairs(self.signals) do 
+                local inst = instances[i]
+                for signal, func in pairs(signals) do
+                    inst[signal]:Connect(function() func(inst, new) end)
+                end
+            end
+
+            new.instances = instances
+            return new
+        end
+
+        elemClasses.section.addDropdown = function(self, settings, callback) 
+            if (not typeof(settings) == 'table') then
+                return error('expected type table for settings', 2) 
+            end
+            local s_title = settings.text or 'nil'
+            local s_options = settings.options or {}
+            local s_default = settings.default
+
+            local new = dropdown:new()
+            new.section = self 
+            new.name = s_title
+            table.insert(self.controls, new)
+
+            new.instances.label.Text = s_title
+            new:setOptions(s_options)
+
+            if (s_default) then
+                new.instances.selected.Text = s_default
+                new.value = s_default
+            end
+
+            new.instances.controlFrame.Parent = self.instances.controlMenu
+
+            if (typeof(callback) == 'function') then
+                new:bindToEvent('onSelect', callback)
+            end
+            return new
+        end
+    end
+    elemClasses.dropdown = dropdown
+end
 
     -- SLIDER
     do 
