@@ -5525,10 +5525,9 @@ end
         end
     end
 
-    instances.button.Visible = false -- ADD THIS
-    new.instances = instances
-    return new
-end
+      new.instances = instances
+            return new
+        end
 
         elemClasses.section.addDropdown = function(self, settings, callback) 
             if (not typeof(settings) == 'table') then
@@ -5558,9 +5557,6 @@ end
             end
             return new
         end
-    end
-    elemClasses.dropdown = dropdown
-end
 
     -- SLIDER
     do 
