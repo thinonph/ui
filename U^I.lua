@@ -5364,7 +5364,7 @@ do
                 menu.Name = '#menu'
                 menu.Position = UDim2.new(0, 0, 0, 20)
                 menu.Size = UDim2.new(1, 0, 0, 0)
-                menu.Visible = true
+                menu.Visible = false
                 menu.ZIndex = 40
                 menu.Parent = controlFrame
 
@@ -5425,14 +5425,16 @@ do
         dropdown.value = nil
 
         dropdown.open = function(self) 
-            self.openState = true 
-            self:fireEvent('onOpen')
-            local button, icon = self.instances.button, self.instances.icon
-            tween(button, {BackgroundColor3 = self.focused and theme.Button4 or theme.Button2}, 0.2, 1)
-            tween(icon, {Rotation = 180, ImageColor3 = theme.Primary}, 0.3, 1)
-            local menuSize = math.min(#self.options * 18, 18 * 6)
-            tween(self.instances.menu, {Size = UDim2.new(1, 0, 0, menuSize)}, 0.2, 1)
-        end
+    self.openState = true 
+    self:fireEvent('onOpen')
+    local button, icon = self.instances.button, self.instances.icon
+    self.instances.menu.Visible = true
+    tween(button, {BackgroundColor3 = self.focused and theme.Button4 or theme.Button2}, 0.2, 1)
+    tween(icon, {Rotation = 180, ImageColor3 = theme.Primary}, 0.3, 1)
+    local menuSize = math.min(#self.options * 18, 18 * 6)
+    tween(self.instances.menu, {Size = UDim2.new(1, 0, 0, menuSize)}, 0.2, 1)
+end
+
         dropdown.close = function(self) 
     self.openState = false
     self:fireEvent('onClose')
@@ -5441,10 +5443,9 @@ do
     tween(icon, {Rotation = 0, ImageColor3 = theme.Secondary}, 0.3, 1)
     tween(self.instances.menu, {Size = UDim2.new(1, 0, 0, 0)}, 0.2, 1)
 
-    -- ADD THIS
     task.delay(0.2, function()
         if not self.openState then
-            button.Visible = false
+            self.instances.menu.Visible = false
         end
     end)
 end
