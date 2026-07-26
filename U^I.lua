@@ -1705,7 +1705,7 @@ do
                     backgroundFrame.Visible = true 
                     backgroundFrame.ZIndex = 99
                     
-                    backgroundFrame.Parent = trim
+                    backgroundFrame.Parent = main
                 end
                 local stroke = Instance.new('UIStroke') do 
                     stroke.ApplyStrokeMode = 'Border'
@@ -6806,7 +6806,7 @@ end
                         backgroundFrame.Visible = true 
                         backgroundFrame.ZIndex = 2999
                         
-                        backgroundFrame.Parent = trim
+                        backgroundFrame.Parent = main
                     end
                     local stroke = Instance.new('UIStroke') do 
                         stroke.ApplyStrokeMode = 'Border'
