@@ -5424,23 +5424,31 @@ do
         dropdown.openState = false
         dropdown.value = nil
 
-        dropdown.open = function(self) 
-            self.openState = true 
-            self:fireEvent('onOpen')
-            local button, icon = self.instances.button, self.instances.icon
-            tween(button, {BackgroundColor3 = self.focused and theme.Button4 or theme.Button2}, 0.2, 1)
-            tween(icon, {Rotation = 180, ImageColor3 = theme.Primary}, 0.3, 1)
-            local menuSize = math.min(#self.options * 18, 18 * 6)
-            tween(self.instances.menu, {Size = UDim2.new(1, 0, 0, menuSize)}, 0.2, 1)
-        end
+       dropdown.open = function(self) 
+    self.openState = true 
+    self:fireEvent('onOpen')
+    local button, icon = self.instances.button, self.instances.icon
+    button.Visible = true -- ADD THIS
+    tween(button, {BackgroundColor3 = self.focused and theme.Button4 or theme.Button2}, 0.2, 1)
+    tween(icon, {Rotation = 180, ImageColor3 = theme.Primary}, 0.3, 1)
+    local menuSize = math.min(#self.options * 18, 18 * 6)
+    tween(self.instances.menu, {Size = UDim2.new(1, 0, 0, menuSize)}, 0.2, 1)
+end
         dropdown.close = function(self) 
-            self.openState = false
-            self:fireEvent('onClose')
-            local button, icon = self.instances.button, self.instances.icon
-            tween(button, {BackgroundColor3 = self.focused and theme.Button2 or theme.Button1}, 0.2, 1)
-            tween(icon, {Rotation = 0, ImageColor3 = theme.Secondary}, 0.3, 1)
-            tween(self.instances.menu, {Size = UDim2.new(1, 0, 0, 0)}, 0.2, 1)
+    self.openState = false
+    self:fireEvent('onClose')
+    local button, icon = self.instances.button, self.instances.icon
+    tween(button, {BackgroundColor3 = self.focused and theme.Button2 or theme.Button1}, 0.2, 1)
+    tween(icon, {Rotation = 0, ImageColor3 = theme.Secondary}, 0.3, 1)
+    tween(self.instances.menu, {Size = UDim2.new(1, 0, 0, 0)}, 0.2, 1)
+
+    -- ADD THIS
+    task.delay(0.2, function()
+        if not self.openState then
+            button.Visible = false
         end
+    end)
+end
         dropdown.click = function(self) 
             if (self.openState) then self:close() else self:open() end
             return self
@@ -5497,30 +5505,31 @@ do
         }
 
         dropdown.new = function(self) 
-            local new = setmetatable({}, self)
-            new.binds = {}
-            new.options = {}
+    local new = setmetatable({}, self)
+    new.binds = {}
+    new.options = {}
 
-            local instances = {}
-            instances.controlFrame = self.instances.controlFrame:Clone()
-            instances.clickSensor = instances.controlFrame['#click-sensor']
-            instances.label = instances.clickSensor['#label']
-            instances.button = instances.clickSensor['#button']
-            instances.selected = instances.button['#selected']
-            instances.icon = instances.button['#icon']
-            instances.menu = instances.controlFrame['#menu']
-            instances.list = instances.menu['#list']
+    local instances = {}
+    instances.controlFrame = self.instances.controlFrame:Clone()
+    instances.clickSensor = instances.controlFrame['#click-sensor']
+    instances.label = instances.clickSensor['#label']
+    instances.button = instances.clickSensor['#button']
+    instances.selected = instances.button['#selected']
+    instances.icon = instances.button['#icon']
+    instances.menu = instances.controlFrame['#menu']
+    instances.list = instances.menu['#list']
 
-            for i, signals in pairs(self.signals) do 
-                local inst = instances[i]
-                for signal, func in pairs(signals) do
-                    inst[signal]:Connect(function() func(inst, new) end)
-                end
-            end
-
-            new.instances = instances
-            return new
+    for i, signals in pairs(self.signals) do 
+        local inst = instances[i]
+        for signal, func in pairs(signals) do
+            inst[signal]:Connect(function() func(inst, new) end)
         end
+    end
+
+    instances.button.Visible = false -- ADD THIS
+    new.instances = instances
+    return new
+end
 
         elemClasses.section.addDropdown = function(self, settings, callback) 
             if (not typeof(settings) == 'table') then
