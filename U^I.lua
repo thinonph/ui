@@ -5558,10 +5558,14 @@ end
             end
             return new
         end
+    end
+
+    elemClasses.dropdown = dropdown
+end
 
     -- SLIDER
     do 
-        
+
         local slider = {} do 
             slider.__index = slider 
             setmetatable(slider, elemClasses.baseElement)
