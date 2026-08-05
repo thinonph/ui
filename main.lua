@@ -13,7 +13,7 @@ launcher:addGame({
 
 launcher:addGame({
     name = 'Arsenal',
-    status = 'updating',
+    status = 'up',
     url = "https://raw.githubusercontent.com/thinonph/ui/refs/heads/main/arsenal.lua"
 })
 
