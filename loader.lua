@@ -125,7 +125,6 @@ function ui.newLauncher(cfg)
     self.selected = nil
     self.loading = false
 
-    -- main
     local main = Instance.new('Frame')
     main.Name = 'main'
     main.BackgroundColor3 = T.bg
@@ -146,7 +145,6 @@ function ui.newLauncher(cfg)
     stroke.Thickness = 1
     stroke.Parent = main
 
-    -- top bar
     local top = Instance.new('Frame')
     top.Name = 'top'
     top.BackgroundColor3 = T.surface
@@ -188,7 +186,6 @@ function ui.newLauncher(cfg)
     close.MouseLeave:Connect(function() tw(close, {TextColor3 = T.textDim}, 0.15) end)
     close.MouseButton1Click:Connect(function() self:kill() end)
 
-    -- drag
     local drag, dragStart, startPos
     top.InputBegan:Connect(function(io)
         if io.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -207,7 +204,6 @@ function ui.newLauncher(cfg)
         if io.UserInputType == Enum.UserInputType.MouseButton1 then drag = false end
     end)
 
-    -- content area
     local content = Instance.new('Frame')
     content.Name = 'content'
     content.BackgroundTransparency = 1
@@ -216,7 +212,6 @@ function ui.newLauncher(cfg)
     content.ZIndex = 11
     content.Parent = main
 
-    -- game list page
     local listPage = Instance.new('ScrollingFrame')
     listPage.Name = 'list'
     listPage.BackgroundTransparency = 1
@@ -243,7 +238,6 @@ function ui.newLauncher(cfg)
     listPad.PaddingRight = UDim.new(0, 8)
     listPad.Parent = listPage
 
-    -- loading page
     local loadPage = Instance.new('Frame')
     loadPage.Name = 'load'
     loadPage.BackgroundTransparency = 1
@@ -300,38 +294,6 @@ function ui.newLauncher(cfg)
     loadSub.Parent = loadCenter
     self.loadSub = loadSub
 
-    -- cancel btn on load page
-    local cancelBtn = Instance.new('TextButton')
-    cancelBtn.BackgroundColor3 = T.surface
-    cancelBtn.BorderSizePixel = 0
-    cancelBtn.Position = UDim2.new(0.5, -40, 1, -36)
-    cancelBtn.Size = UDim2.fromOffset(80, 24)
-    cancelBtn.Text = 'cancel'
-    cancelBtn.TextColor3 = T.textDim
-    cancelBtn.TextSize = 12
-    cancelBtn.Font = 'SourceSans'
-    cancelBtn.ZIndex = 14
-    cancelBtn.Parent = loadPage
-
-    local cancelStroke = Instance.new('UIStroke')
-    cancelStroke.Color = T.border
-    cancelStroke.Thickness = 1
-    cancelStroke.Parent = cancelBtn
-
-    cancelBtn.MouseEnter:Connect(function()
-        tw(cancelBtn, {BackgroundColor3 = T.surfaceHover}, 0.15)
-        tw(cancelStroke, {Color = T.borderHover}, 0.15)
-    end)
-    cancelBtn.MouseLeave:Connect(function()
-        tw(cancelBtn, {BackgroundColor3 = T.surface}, 0.15)
-        tw(cancelStroke, {Color = T.border}, 0.15)
-    end)
-    cancelBtn.MouseButton1Click:Connect(function()
-        self.loading = false
-        self:showList()
-    end)
-
-    -- bottom bar
     local bottom = Instance.new('Frame')
     bottom.Name = 'bottom'
     bottom.BackgroundColor3 = T.surface
@@ -417,7 +379,6 @@ function ui.newLauncher(cfg)
     ver.ZIndex = 12
     ver.Parent = bottom
 
-    -- functions
     function self:addGame(data)
         table.insert(self.games, data)
         self:buildCard(data)
@@ -439,7 +400,7 @@ function ui.newLauncher(cfg)
         cs.Parent = card
 
         local dot = Instance.new('Frame')
-        dot.BackgroundColor3 = data.status == 'OP' and T.good or data.status == 'Updating' and T.warn or T.bad
+        dot.BackgroundColor3 = data.status == 'up' and T.good or data.status == 'down' and T.bad or T.warn
         dot.BorderSizePixel = 0
         dot.Position = UDim2.fromOffset(12, 19)
         dot.Size = UDim2.fromOffset(6, 6)
@@ -464,7 +425,7 @@ function ui.newLauncher(cfg)
         status.Position = UDim2.fromOffset(26, 24)
         status.Size = UDim2.new(1, -36, 0, 16)
         status.Text = data.status or 'unknown'
-        status.TextColor3 = data.status == 'OP' and T.good or data.status == 'Updating' and T.warn or T.bad
+        status.TextColor3 = data.status == 'up' and T.good or data.status == 'down' and T.bad or T.warn
         status.TextSize = 11
         status.Font = 'SourceSans'
         status.TextXAlignment = 'Left'
@@ -506,27 +467,23 @@ function ui.newLauncher(cfg)
         self.loading = true
         self.listPage.Visible = false
         self.loadPage.Visible = true
-        self.loadText.Text = 'loading ' .. data.name:lower() .. '...'
-        self.loadSub.Text = 'initializing'
+        self.loadText.Text = 'loading...'
+        self.loadSub.Text = ''
         self.barFill.Size = UDim2.fromScale(0, 1)
 
         local steps = {'connecting', 'fetching assets', 'injecting', 'finalizing'}
-        local progress = 0
 
         for i, step in ipairs(steps) do
             if not self.loading then return end
             task.wait(0.4 + math.random() * 0.3)
             if not self.loading then return end
             self.loadSub.Text = step .. '...'
-            progress = i / #steps
-            tw(self.barFill, {Size = UDim2.fromScale(progress, 1)}, 0.3)
+            tw(self.barFill, {Size = UDim2.fromScale(i / #steps, 1)}, 0.3)
         end
 
         task.wait(0.3)
         if not self.loading then return end
 
-        self.loadText.Text = 'ready'
-        self.loadSub.Text = data.name:lower() .. ' loaded'
         tw(self.barFill, {Size = UDim2.fromScale(1, 1)}, 0.2)
 
         task.wait(0.5)
@@ -546,7 +503,6 @@ function ui.newLauncher(cfg)
         T = themes[name]
         local oldGames = {}
         for _, g in ipairs(self.games) do table.insert(oldGames, g) end
-        local wasLoading = self.loading
         self:kill(false)
         local new = ui.newLauncher({theme = name, title = cfg.title, version = cfg.version})
         for _, g in ipairs(oldGames) do new:addGame(g) end
