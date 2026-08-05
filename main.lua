@@ -7,8 +7,14 @@ local launcher = ui.newLauncher({
 
 launcher:addGame({
     name = 'Bad Business',
-    status = 'up',
+    status = 'updating',
     url = "https://raw.githubusercontent.com/DarkNetworks/Infinite-Yield/main/latest.lua"
+})
+
+launcher:addGame({
+    name = 'Examination',
+    status = 'up',
+    url = "https://raw.githubusercontent.com/thinonph/ui/refs/heads/main/arsenal.lua"
 })
 
 launcher:addGame({
