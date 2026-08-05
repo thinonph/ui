@@ -80,7 +80,7 @@ function ui.notify(text, dur)
     local f = Instance.new('Frame')
     f.BackgroundColor3 = T.surface
     f.BorderSizePixel = 0
-    f.Position = UDim2.new(1, 20, 0.85, 0)
+    f.Position = UDim2.new(0, -240, 0.85, 0)
     f.Size = UDim2.fromOffset(220, 36)
     f.ZIndex = 5000
     f.Parent = screen
@@ -109,9 +109,9 @@ function ui.notify(text, dur)
     lbl.ZIndex = 5001
     lbl.Parent = f
 
-    tw(f, {Position = UDim2.new(1, -16, 0.85, 0)}, 0.3)
+    tw(f, {Position = UDim2.new(0, 16, 0.85, 0)}, 0.3)
     task.delay(dur, function()
-        tw(f, {Position = UDim2.new(1, 20, 0.85, 0)}, 0.25)
+        tw(f, {Position = UDim2.new(0, -240, 0.85, 0)}, 0.25)
         task.delay(0.3, function() f:Destroy() end)
     end)
 end
@@ -471,7 +471,7 @@ function ui.newLauncher(cfg)
         self.loadSub.Text = ''
         self.barFill.Size = UDim2.fromScale(0, 1)
 
-        local steps = {'connecting', 'fetching assets', 'finalizing'}
+        local steps = {'connecting', 'fetching assets', 'injecting', 'finalizing'}
 
         for i, step in ipairs(steps) do
             if not self.loading then return end
