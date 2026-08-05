@@ -471,7 +471,7 @@ function ui.newLauncher(cfg)
         self.loadSub.Text = ''
         self.barFill.Size = UDim2.fromScale(0, 1)
 
-        local steps = {'connecting', 'fetching assets', 'injecting', 'finalizing'}
+        local steps = {'connecting', 'fetching assets', 'finalizing'}
 
         for i, step in ipairs(steps) do
             if not self.loading then return end
