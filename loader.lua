@@ -172,12 +172,10 @@ local themes = {
 }
 
 local theme = themes.default
-local currentThemeName = 'default'
 
 local function setTheme(name)
     if themes[name] then
         theme = themes[name]
-        currentThemeName = name
     end
 end
 
@@ -206,27 +204,20 @@ baseElement.fireEvent = function(self, event, ...)
     return self
 end
 baseElement.name = ''
-baseElement.tooltip = nil
-baseElement.setTooltip = function(self, tooltip) 
-    self.tooltip = tostring(tooltip)
-    return self
-end
 
--- game data structure
-local games = {}
-local selectedGame = nil
-
--- main launcher window
+-- main launcher
 local launcher = {}
 launcher.__index = launcher
 setmetatable(launcher, baseElement)
 
-launcher.games = games
-launcher.selectedGame = nil
-launcher.currentPage = 'games'
-
 function launcher:init()
-    local instances = {}
+    self.instances = {}
+    self.games = self.games or {}
+    self.selectedGame = nil
+    self.currentPage = 'games'
+    self._dragging = false
+
+    local instances = self.instances
 
     -- main frame
     local mainFrame = Instance.new('Frame')
@@ -243,6 +234,7 @@ function launcher:init()
 
     local scale = Instance.new('UIScale')
     scale.Scale = 1
+    scale.Name = '#scale'
     scale.Parent = mainFrame
     instances.scale = scale
 
@@ -278,6 +270,7 @@ function launcher:init()
     local trimGradient = Instance.new('UIGradient')
     trimGradient.Color = ColorSequence.new(theme.Primary, theme.Secondary)
     trimGradient.Parent = trim
+    instances.trimGradient = trimGradient
 
     -- title bar
     local titleBar = Instance.new('Frame')
@@ -290,6 +283,7 @@ function launcher:init()
     titleBar.Size = UDim2.new(1, 0, 0, 32)
     titleBar.ZIndex = 50
     titleBar.Parent = mainFrame
+    instances.titleBar = titleBar
 
     local titleStroke = Instance.new('UIStroke')
     titleStroke.ApplyStrokeMode = 'Border'
@@ -401,6 +395,7 @@ function launcher:init()
 
     -- pages container
     local pages = Instance.new('Frame')
+    pages.Name = '#pages'
     pages.BackgroundTransparency = 1
     pages.Size = UDim2.fromScale(1, 1)
     pages.Parent = pageRegion
@@ -439,7 +434,7 @@ function launcher:init()
     instances.gamesPage = gamesPage
     instances.gamesLayout = gamesLayout
 
-    -- GAME DETAILS PAGE (hidden by default)
+    -- GAME DETAILS PAGE
     local detailsPage = Instance.new('Frame')
     detailsPage.Name = 'Details'
     detailsPage.BackgroundTransparency = 1
@@ -449,8 +444,8 @@ function launcher:init()
     detailsPage.Parent = pages
     instances.detailsPage = detailsPage
 
-    -- details content
     local detailsContent = Instance.new('Frame')
+    detailsContent.Name = '#content'
     detailsContent.BackgroundTransparency = 1
     detailsContent.Size = UDim2.new(1, -24, 1, -24)
     detailsContent.Position = UDim2.fromOffset(12, 12)
@@ -460,6 +455,7 @@ function launcher:init()
 
     -- back button
     local backBtn = Instance.new('TextButton')
+    backBtn.Name = '#back'
     backBtn.AutoButtonColor = false
     backBtn.BackgroundColor3 = theme.Button1
     backBtn.BorderSizePixel = 0
@@ -491,6 +487,7 @@ function launcher:init()
 
     -- game title in details
     local detailTitle = Instance.new('TextLabel')
+    detailTitle.Name = '#title'
     detailTitle.BackgroundTransparency = 1
     detailTitle.Position = UDim2.fromOffset(0, 36)
     detailTitle.Size = UDim2.new(1, 0, 0, 28)
@@ -505,6 +502,7 @@ function launcher:init()
 
     -- game status label
     local detailStatus = Instance.new('TextLabel')
+    detailStatus.Name = '#status'
     detailStatus.BackgroundTransparency = 1
     detailStatus.Position = UDim2.fromOffset(0, 64)
     detailStatus.Size = UDim2.new(1, 0, 0, 20)
@@ -518,6 +516,7 @@ function launcher:init()
 
     -- game description
     local detailDesc = Instance.new('TextLabel')
+    detailDesc.Name = '#desc'
     detailDesc.BackgroundTransparency = 1
     detailDesc.Position = UDim2.fromOffset(0, 90)
     detailDesc.Size = UDim2.new(1, 0, 0, 60)
@@ -531,8 +530,9 @@ function launcher:init()
     detailDesc.Parent = detailsContent
     instances.detailDesc = detailDesc
 
-    -- start button (big)
+    -- start button
     local startBtn = Instance.new('TextButton')
+    startBtn.Name = '#start'
     startBtn.AutoButtonColor = false
     startBtn.BackgroundColor3 = theme.Button3
     startBtn.BorderSizePixel = 0
@@ -552,7 +552,6 @@ function launcher:init()
     startStroke.Thickness = 1
     startStroke.Parent = startBtn
 
-    -- start button trim
     local startTrim = Instance.new('Frame')
     startTrim.BackgroundColor3 = theme.Primary
     startTrim.BorderSizePixel = 0
@@ -629,28 +628,33 @@ function launcher:init()
     settingsLayout.SortOrder = 'LayoutOrder'
     settingsLayout.Parent = settingsPage
 
-    local settingsPadding = UIPadding:Clone()
+    local settingsPadding = Instance.new('UIPadding')
+    settingsPadding.PaddingTop = UDim.new(0, 12)
+    settingsPadding.PaddingLeft = UDim.new(0, 12)
+    settingsPadding.PaddingRight = UDim.new(0, 12)
     settingsPadding.Parent = settingsPage
 
     instances.settingsPage = settingsPage
 
-    self.instances = instances
     self:buildSidebar(sideMenu)
     self:buildThemeButtons()
 
     -- dragging
     local dCon, aCon
     local targetPos
+
     titleBar.InputBegan:Connect(function(io) 
-        if io.UserInputType.Value == 0 then
+        if io.UserInputType == Enum.UserInputType.MouseButton1 then
+            self._dragging = true
             local rootPos = mainFrame.AbsolutePosition
             local startPos = Vector2.new(io.Position.X, io.Position.Y)
             targetPos = UDim2.fromOffset(rootPos.X, rootPos.Y)
             aCon = renderService.RenderStepped:Connect(function(dt) 
+                if not self._dragging then return end
                 mainFrame.Position = mainFrame.Position:lerp(targetPos, 1 - 1e-12^dt)
             end)
             dCon = inputService.InputChanged:Connect(function(io) 
-                if io.UserInputType.Value == 4 then
+                if io.UserInputType == Enum.UserInputType.MouseMovement and self._dragging then
                     local curPos = Vector2.new(io.Position.X, io.Position.Y)
                     local dest = rootPos + (curPos - startPos)
                     targetPos = UDim2.fromOffset(dest.X, dest.Y)
@@ -658,11 +662,19 @@ function launcher:init()
             end)
         end
     end)
-    titleBar.InputEnded:Connect(function(io)
-        if io.UserInputType.Value == 0 then
-            dCon:Disconnect()
-            aCon:Disconnect()
+
+    local function endDrag()
+        if self._dragging then
+            self._dragging = false
+            if dCon then dCon:Disconnect() end
+            if aCon then aCon:Disconnect() end
             tween(mainFrame, {Position = targetPos}, 0.2, 1)
+        end
+    end
+
+    titleBar.InputEnded:Connect(function(io)
+        if io.UserInputType == Enum.UserInputType.MouseButton1 then
+            endDrag()
         end
     end)
 
@@ -674,16 +686,18 @@ function launcher:init()
 end
 
 function launcher:buildSidebar(container)
+    self._sidebarButtons = {}
     local buttons = {
-        {text = 'Games', icon = 'rbxassetid://10152328589', page = 'games'},
-        {text = 'Themes', icon = 'rbxassetid://9658988382', page = 'themes'},
-        {text = 'Settings', icon = 'rbxassetid://9801455339', page = 'settings'}
+        {text = 'Games', page = 'games'},
+        {text = 'Themes', page = 'themes'},
+        {text = 'Settings', page = 'settings'}
     }
 
-    for _, btnData in ipairs(buttons) do
+    for idx, btnData in ipairs(buttons) do
         local btn = Instance.new('TextButton')
+        btn.Name = btnData.text
         btn.AutoButtonColor = false
-        btn.BackgroundColor3 = theme.Button1
+        btn.BackgroundColor3 = idx == 1 and theme.Button3 or theme.Button1
         btn.BorderSizePixel = 0
         btn.Size = UDim2.new(1, -8, 0, 32)
         btn.Text = ''
@@ -695,24 +709,15 @@ function launcher:buildSidebar(container)
         round.Parent = btn
 
         local stroke = Instance.new('UIStroke')
-        stroke.Color = theme.Stroke
+        stroke.Color = idx == 1 and theme.Primary or theme.Stroke
         stroke.Parent = btn
-
-        local icon = Instance.new('ImageLabel')
-        icon.BackgroundTransparency = 1
-        icon.Image = btnData.icon
-        icon.ImageColor3 = theme.TextPrimary
-        icon.Position = UDim2.fromOffset(8, 4)
-        icon.Size = UDim2.fromOffset(24, 24)
-        icon.ZIndex = 53
-        icon.Parent = btn
 
         local label = Instance.new('TextLabel')
         label.BackgroundTransparency = 1
-        label.Position = UDim2.fromOffset(38, 0)
-        label.Size = UDim2.new(1, -46, 1, 0)
+        label.Position = UDim2.fromOffset(10, 0)
+        label.Size = UDim2.new(1, -20, 1, 0)
         label.Text = btnData.text
-        label.TextColor3 = theme.TextPrimary
+        label.TextColor3 = idx == 1 and theme.Primary or theme.TextPrimary
         label.TextSize = 15
         label.Font = 'SourceSans'
         label.TextXAlignment = 'Left'
@@ -720,49 +725,51 @@ function launcher:buildSidebar(container)
         label.ZIndex = 53
         label.Parent = btn
 
+        table.insert(self._sidebarButtons, {button = btn, stroke = stroke, label = label, page = btnData.page})
+
         btn.MouseEnter:Connect(function()
             tween(btn, {BackgroundColor3 = theme.Button2}, 0.2, 1)
             tween(stroke, {Color = theme.StrokeHover}, 0.2, 1)
-            tween(icon, {ImageColor3 = theme.Primary}, 0.2, 1)
+            tween(label, {TextColor3 = theme.Primary}, 0.2, 1)
         end)
         btn.MouseLeave:Connect(function()
             if self.currentPage ~= btnData.page then
                 tween(btn, {BackgroundColor3 = theme.Button1}, 0.2, 1)
                 tween(stroke, {Color = theme.Stroke}, 0.2, 1)
-                tween(icon, {ImageColor3 = theme.TextPrimary}, 0.2, 1)
+                tween(label, {TextColor3 = theme.TextPrimary}, 0.2, 1)
             end
         end)
         btn.MouseButton1Click:Connect(function()
             self:showPage(btnData.page)
-            -- reset all sidebar buttons
-            for _, child in ipairs(container:GetChildren()) do
-                if child:IsA('TextButton') then
-                    tween(child, {BackgroundColor3 = theme.Button1}, 0.2, 1)
-                    tween(child:FindFirstChildOfClass('UIStroke'), {Color = theme.Stroke}, 0.2, 1)
-                    local ic = child:FindFirstChildOfClass('ImageLabel')
-                    if ic then tween(ic, {ImageColor3 = theme.TextPrimary}, 0.2, 1) end
-                end
-            end
-            -- highlight active
-            tween(btn, {BackgroundColor3 = theme.Button3}, 0.2, 1)
-            tween(stroke, {Color = theme.Primary}, 0.2, 1)
-            tween(icon, {ImageColor3 = theme.Primary}, 0.2, 1)
         end)
+    end
+end
+
+function launcher:updateSidebarActive()
+    if not self._sidebarButtons then return end
+    for _, data in ipairs(self._sidebarButtons) do
+        if data.page == self.currentPage then
+            tween(data.button, {BackgroundColor3 = theme.Button3}, 0.2, 1)
+            tween(data.stroke, {Color = theme.Primary}, 0.2, 1)
+            tween(data.label, {TextColor3 = theme.Primary}, 0.2, 1)
+        else
+            tween(data.button, {BackgroundColor3 = theme.Button1}, 0.2, 1)
+            tween(data.stroke, {Color = theme.Stroke}, 0.2, 1)
+            tween(data.label, {TextColor3 = theme.TextPrimary}, 0.2, 1)
+        end
     end
 end
 
 function launcher:buildThemeButtons()
     local container = self.instances.themePage
-    for name, _ in pairs(themes) do
+    for name, th in pairs(themes) do
         local btn = Instance.new('TextButton')
+        btn.Name = name
         btn.AutoButtonColor = false
         btn.BackgroundColor3 = theme.Button1
         btn.BorderSizePixel = 0
         btn.Size = UDim2.new(1, -16, 0, 40)
-        btn.Text = name:upper()
-        btn.TextColor3 = theme.TextPrimary
-        btn.TextSize = 15
-        btn.Font = 'SourceSans'
+        btn.Text = ''
         btn.ZIndex = 32
         btn.Parent = container
 
@@ -774,9 +781,21 @@ function launcher:buildThemeButtons()
         stroke.Color = theme.Stroke
         stroke.Parent = btn
 
-        -- color preview
+        local label = Instance.new('TextLabel')
+        label.BackgroundTransparency = 1
+        label.Position = UDim2.fromOffset(12, 0)
+        label.Size = UDim2.new(1, -52, 1, 0)
+        label.Text = name:upper()
+        label.TextColor3 = theme.TextPrimary
+        label.TextSize = 15
+        label.Font = 'SourceSans'
+        label.TextXAlignment = 'Left'
+        label.TextYAlignment = 'Center'
+        label.ZIndex = 33
+        label.Parent = btn
+
         local preview = Instance.new('Frame')
-        preview.BackgroundColor3 = themes[name].Primary
+        preview.BackgroundColor3 = th.Primary
         preview.BorderSizePixel = 0
         preview.Position = UDim2.new(1, -36, 0, 8)
         preview.Size = UDim2.fromOffset(24, 24)
@@ -808,19 +827,27 @@ function launcher:showPage(pageName)
             child.Visible = (child.Name:lower() == pageName:lower())
         end
     end
+    self:updateSidebarActive()
 end
 
 function launcher:setTheme(name)
     if not themes[name] then return end
     setTheme(name)
-    -- refresh UI with new theme
-    self:destroy()
+    local oldGames = {}
+    for _, g in ipairs(self.games) do table.insert(oldGames, g) end
+    local oldSelected = self.selectedGame
+    self:destroy(false)
     self:init()
-    self:loadGames(self.games)
-    if self.selectedGame then
-        self:selectGame(self.selectedGame)
+    self:loadGames(oldGames)
+    if oldSelected then
+        for _, g in ipairs(oldGames) do
+            if g.name == oldSelected.name then
+                self.selectedGame = g
+                break
+            end
+        end
     end
-    self:showPage(self.currentPage)
+    self:showPage(self.currentPage or 'games')
 end
 
 function launcher:addGame(gameData)
@@ -830,19 +857,21 @@ end
 
 function launcher:loadGames(gamesList)
     self.games = gamesList or {}
-    -- clear existing
-    for _, child in ipairs(self.instances.gamesPage:GetChildren()) do
-        if child:IsA('TextButton') or child:IsA('Frame') then
-            child:Destroy()
+    if self.instances and self.instances.gamesPage then
+        for _, child in ipairs(self.instances.gamesPage:GetChildren()) do
+            if child:IsA('TextButton') then
+                child:Destroy()
+            end
         end
-    end
-    for _, gameData in ipairs(self.games) do
-        self:buildGameCard(gameData)
+        for _, gameData in ipairs(self.games) do
+            self:buildGameCard(gameData)
+        end
     end
 end
 
 function launcher:buildGameCard(gameData)
     local card = Instance.new('TextButton')
+    card.Name = gameData.name or 'Game'
     card.AutoButtonColor = false
     card.BackgroundColor3 = theme.Button1
     card.BorderSizePixel = 0
@@ -861,8 +890,8 @@ function launcher:buildGameCard(gameData)
     stroke.Thickness = 1
     stroke.Parent = card
 
-    -- game icon/image placeholder
     local icon = Instance.new('ImageLabel')
+    icon.Name = '#icon'
     icon.BackgroundColor3 = theme.Window3
     icon.BorderSizePixel = 0
     icon.Position = UDim2.fromOffset(8, 8)
@@ -875,8 +904,8 @@ function launcher:buildGameCard(gameData)
     iconRound.CornerRadius = UDim.new(0, 4)
     iconRound.Parent = icon
 
-    -- status indicator
     local statusDot = Instance.new('Frame')
+    statusDot.Name = '#dot'
     statusDot.BackgroundColor3 = gameData.status == 'OP' and Color3.fromRGB(0, 255, 100) or 
                                  gameData.status == 'Updating' and Color3.fromRGB(255, 200, 0) or
                                  Color3.fromRGB(255, 50, 50)
@@ -889,8 +918,8 @@ function launcher:buildGameCard(gameData)
     dotRound.CornerRadius = UDim.new(1, 0)
     dotRound.Parent = statusDot
 
-    -- game name
     local nameLabel = Instance.new('TextLabel')
+    nameLabel.Name = '#name'
     nameLabel.BackgroundTransparency = 1
     nameLabel.Position = UDim2.fromOffset(8, 64)
     nameLabel.Size = UDim2.new(1, -16, 0, 22)
@@ -902,8 +931,8 @@ function launcher:buildGameCard(gameData)
     nameLabel.ZIndex = 33
     nameLabel.Parent = card
 
-    -- status text
     local statusLabel = Instance.new('TextLabel')
+    statusLabel.Name = '#status'
     statusLabel.BackgroundTransparency = 1
     statusLabel.Position = UDim2.fromOffset(8, 86)
     statusLabel.Size = UDim2.new(1, -16, 0, 18)
@@ -917,16 +946,13 @@ function launcher:buildGameCard(gameData)
     statusLabel.ZIndex = 33
     statusLabel.Parent = card
 
-    -- hover effects
     card.MouseEnter:Connect(function()
         tween(card, {BackgroundColor3 = theme.Button2}, 0.2, 1)
         tween(stroke, {Color = theme.StrokeHover}, 0.2, 1)
-        tween(card, {Size = UDim2.fromOffset(204, 124)}, 0.2, 1)
     end)
     card.MouseLeave:Connect(function()
         tween(card, {BackgroundColor3 = theme.Button1}, 0.2, 1)
         tween(stroke, {Color = theme.Stroke}, 0.2, 1)
-        tween(card, {Size = UDim2.fromOffset(200, 120)}, 0.2, 1)
     end)
     card.MouseButton1Click:Connect(function()
         self:selectGame(gameData)
@@ -944,32 +970,50 @@ function launcher:selectGame(gameData)
     self:showPage('details')
 end
 
-function launcher:destroy()
+function launcher:destroy(animate)
+    animate = animate ~= false
+    if not self.instances or not self.instances.mainFrame then return end
+
     local main = self.instances.mainFrame
-    tween(main['#scale'], {Scale = 0.8}, 0.3, 1)
-    local bg = {}
-    local img = {}
-    local txt = {}
-    local str = {}
-    local d = main:GetDescendants()
-    table.insert(d, main)
-    for _, v in ipairs(d) do
-        if v:IsA('Frame') or v:IsA('TextButton') then table.insert(bg, v) end
-        if v:IsA('ImageLabel') or v:IsA('ImageButton') then table.insert(img, v) end
-        if v:IsA('TextLabel') or v:IsA('TextBox') then table.insert(txt, v) end
-        if v:IsA('UIStroke') then table.insert(str, v) end
-    end
-    local con = renderService.RenderStepped:Connect(function(dt)
-        dt = dt * 8
-        for _, v in ipairs(bg) do v.BackgroundTransparency = math.min(1, v.BackgroundTransparency + dt) end
-        for _, v in ipairs(img) do v.ImageTransparency = math.min(1, v.ImageTransparency + dt) end
-        for _, v in ipairs(txt) do v.TextTransparency = math.min(1, v.TextTransparency + dt) end
-        for _, v in ipairs(str) do v.Transparency = math.min(1, v.Transparency + dt) end
-    end)
-    task.delay(0.5, function()
-        con:Disconnect()
+
+    if animate then
+        local bg = {}
+        local img = {}
+        local txt = {}
+        local str = {}
+        local d = main:GetDescendants()
+        table.insert(d, main)
+        for _, v in ipairs(d) do
+            if v:IsA('Frame') or v:IsA('TextButton') then table.insert(bg, v) end
+            if v:IsA('ImageLabel') or v:IsA('ImageButton') then table.insert(img, v) end
+            if v:IsA('TextLabel') or v:IsA('TextBox') then table.insert(txt, v) end
+            if v:IsA('UIStroke') then table.insert(str, v) end
+        end
+        local con = renderService.RenderStepped:Connect(function(dt)
+            dt = dt * 8
+            for _, v in ipairs(bg) do 
+                if v and v.Parent then v.BackgroundTransparency = math.min(1, v.BackgroundTransparency + dt) end
+            end
+            for _, v in ipairs(img) do 
+                if v and v.Parent then v.ImageTransparency = math.min(1, v.ImageTransparency + dt) end
+            end
+            for _, v in ipairs(txt) do 
+                if v and v.Parent then v.TextTransparency = math.min(1, v.TextTransparency + dt) end
+            end
+            for _, v in ipairs(str) do 
+                if v and v.Parent then v.Transparency = math.min(1, v.Transparency + dt) end
+            end
+        end)
+        task.delay(0.5, function()
+            con:Disconnect()
+            if main and main.Parent then main:Destroy() end
+        end)
+    else
         main:Destroy()
-    end)
+    end
+
+    self.instances = nil
+    self._sidebarButtons = nil
 end
 
 -- constructor
@@ -980,6 +1024,7 @@ local function newLauncher(settings)
     self.games = {}
     self.selectedGame = nil
     self.currentPage = 'games'
+    self.instances = {}
     if settings.theme and themes[settings.theme] then
         setTheme(settings.theme)
     end
@@ -987,7 +1032,7 @@ local function newLauncher(settings)
     return self
 end
 
--- notification system
+-- notification
 local function notify(title, message, duration)
     duration = duration or 3
     local notifFrame = Instance.new('Frame')
